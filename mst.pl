@@ -1,5 +1,6 @@
 %%%% -*- Mode: Prolog -*-
 
+:- use_module(library(csv)).
 :- dynamic graph/1.
 :- dynamic vertex/2.
 :- dynamic arc/4.
@@ -56,13 +57,13 @@ new_arc(G, U, V) :- new_arc(G, U, V, 1).
 
 % graph_arcs
 
-graph_arcs(G, Es) :- findall(arc(G, U, V, _), arc(G, U, V, _), Es).
+graph_arcs(G, Es) :- findall(arc(G, U, V, _), arc(G, U, V, _), Es). %perchè no peso?
 
 % vertex_neighbors
 
 vertex_neighbors(G, V, Ns) :-
     vertex(G, V),
-    findall(arc(G, V, N, _), arc(G, V, N, _), Ns).
+    findall(arc(G, V, N, _), arc(G, V, N, _), Ns). % perchè no peso?
 
 % adjs
 
@@ -88,14 +89,14 @@ list_graph(G) :-
     list_arcs(G), !.
 
 % read_graph
-:- use_module(library(csv)).
+
 read_graph(G, FileName) :-
     new_graph(G),
     csv_read_file(FileName, Rows, [separator(0'\t)]),
                                   save_graph(G, Rows).
 save_graph(_, []) :- !.
 save_graph(G, [B | Bs]) :-
-    functor(B, row, 3),
+    functor(B, row, 3), % cosa fa?
     arg(1, B, V),
     arg(2, B, U),
     arg(3, B, W),
