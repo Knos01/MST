@@ -26,7 +26,7 @@ new_graph(G) :- assert(graph(G)), !.
 delete_graph(G) :-   % perchè non funziona?
    retractall(arc(G, _, _, _)),
     retractall(vertex(G, _)),
-    retract(graph(G)).
+    retract(G).
 
 % new_vertex
 
