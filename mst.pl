@@ -1,6 +1,5 @@
 %%%% -*- Mode: Prolog -*-
 
-:- use_module(library(csv)).
 :- dynamic graph/1.
 :- dynamic graph/2.
 :- dynamic vertex/1.
@@ -46,7 +45,10 @@ list_vertices(G) :-
 % new_arc
 
 new_arc(G, U, V, Weight) :- arc(G, U, V, Weight), !.
-new_arc(G, U, V, Weight) :- assert(arc(G, U, V, Weight)), !.
+new_arc(G, U, V, Weight) :-
+   assert(arc(G, U, V, Weight)),
+   assert(arc(G, V, U, Weight)),
+   !.
 new_arc(G, U, V) :- new_arc(G, U, V, 1).
 
 % graph_arcs
@@ -63,9 +65,7 @@ vertex_neighbors(G, V, Ns) :-
 
 adjs(G, V, Vs) :-
     vertex(G, V),
-    findall(vertex(G, N), arc(G, V, N, _), Vs),
-    findall(vertex(G, N), arc(G, N, V, _), Vs),
-    Vs \= [].
+    findall(vertex(G, N), arc(G, V, N, _), Vs).
 
 % list_arcs
 

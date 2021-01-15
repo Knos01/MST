@@ -1,6 +1,5 @@
 %%%% -*- Mode: Prolog -*-
 
-:- use_module(library(csv)).
 :- dynamic graph/1.
 :- dynamic graph/2.
 :- dynamic vertex/1.
@@ -88,7 +87,7 @@ read_graph(G, FileName) :-
                                   save_graph(G, Rows).
 save_graph(_, []) :- !.
 save_graph(G, [B | Bs]) :-
-    functor(B, row, 3), % cosa fa?
+    functor(B, row, 3),
     arg(1, B, V),
     arg(2, B, U),
     arg(3, B, W),
@@ -102,7 +101,7 @@ save_graph(G, [B | Bs]) :-
 write_graph(G, FileName) :- write_graph(G, FileName, graph).
 write_graph(G, FileName, Type):-
     Type = graph, findall(row(U, V, W), arc(G, U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]), !;
+    csv_write_file(FileName, Rows, [separator(0'\t)]), ! ;
     Type = edges,
     trans_list(G),
     findall(row(U, V, W), row(U, V, W), Rows),
