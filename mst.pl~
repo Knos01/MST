@@ -2,10 +2,13 @@
 
 :- use_module(library(csv)).
 :- dynamic graph/1.
+:- dynamic graph/2.
+:- dynamic vertex/1.
 :- dynamic vertex/2.
+:- dynamic arc/3.
 :- dynamic arc/4.
-:- dynamic (heap/2).
-:- dynamic (heap/1).
+:- dynamic heap/2.
+:- dynamic heap/1.
 :- dynamic heap_entry/4.
 :- dynamic visited/2.
 :- dynamic previous/3.
@@ -18,23 +21,17 @@
 new_graph(G) :- graph(G), !.
 new_graph(G) :- assert(graph(G)), !.
 
-:- dynamic(graph/2).
-:- dynamic(graph/1). % perchè ancora?
-
 % delete_graph
 
-delete_graph(G) :-   % perchè non funziona?
+delete_graph(G) :-
    retractall(arc(G, _, _, _)),
-    retractall(vertex(G, _)),
-    retract(G).
+   retractall(vertex(G, _)),
+   retract(graph(G)).
 
 % new_vertex
 
 new_vertex(G, V) :- vertex(G, V), !.
 new_vertex(G, V) :- assert(vertex(G, V)), !.
-
-:- dynamic(vertex/2).
-:- dynamic(vertex/1).
 
 % graph_vertices
 
@@ -52,29 +49,23 @@ new_arc(G, U, V, Weight) :- arc(G, U, V, Weight), !.
 new_arc(G, U, V, Weight) :- assert(arc(G, U, V, Weight)), !.
 new_arc(G, U, V) :- new_arc(G, U, V, 1).
 
-:- dynamic(arc/4).
-:- dynamic(arc/3).
-
 % graph_arcs
 
-graph_arcs(G, Es) :- findall(arc(G, U, V, _), arc(G, U, V, _), Es). %perchè no peso?
+graph_arcs(G, Es) :- findall(arc(G, U, V, W), arc(G, U, V, W), Es).
 
 % vertex_neighbors
 
 vertex_neighbors(G, V, Ns) :-
     vertex(G, V),
-    findall(arc(G, V, N, _), arc(G, V, N, _), Ns). % perchè no peso?
+    findall(arc(G, V, N, W), arc(G, V, N, W), Ns).
 
 % adjs
 
 adjs(G, V, Vs) :-
-   vertex(G, V),
-   findall(vertex(G, N), arc(G, V, N, _), Vs),
-   Vs \= [], !.
-adjs(G, V, Vs) :-
-   vertex(G, V),
-   findall(vertex(G, N), arc(G, N, V, _), Vs),
-   Vs \= [], !.
+    vertex(G, V),
+    findall(vertex(G, N), arc(G, V, N, _), Vs),
+    findall(vertex(G, N), arc(G, N, V, _), Vs),
+    Vs \= [].
 
 % list_arcs
 
@@ -85,6 +76,7 @@ list_arcs(G) :-
 % list_graph
 
 list_graph(G) :-
+    graph(G),
     list_vertices(G),
     list_arcs(G), !.
 
