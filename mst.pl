@@ -102,12 +102,13 @@ save_graph(G, [B | Bs]) :-
 write_graph(G, FileName) :- write_graph(G, FileName, graph).
 write_graph(G, FileName, Type):-
     Type = graph, findall(row(U, V, W), arc(G, U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]), ! ;
+    csv_write_file(FileName, Rows, [option(separator(0'\t))]), !. % file location?
+write_graph(G, FileName, Type):-
     Type = edges,
-    trans_list(G),
-    findall(row(U, V, W), row(U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]),
-                                    retractall(row(_, _, _)).
+    trans_list(G).
+    %findall(row(U, V, W), row(U, V, W), Rows).
+   % csv_write_file(FileName, Rows, [separator(0'\t)]),
+   %                                 retractall(row(_, _, _)).
 
 trans_list([]).
 trans_list([[B1, B2, B3] | Bs]) :-
