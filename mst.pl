@@ -152,8 +152,36 @@ mst_prim(G, Source) :-
 %tolgo la testa (heap extract)
 %vertex_key
 %vertex_previous
-%
 
+% new_heap/1
+
+new_heap(H) :- heap(H, _S), !.
+new_heap(H) :- assert(heap(H, 0)), !.
+
+% delete_heap/1
+
+delete_heap(H) :-
+    retractall(heap_entry(H, _, _, _)),
+    retract(heap(H, _)).
+
+% heap_has_size
+
+heap_has_size(H, S) :- heap(H, S).
+
+% heap_empty
+
+heap_empty(H) :- heap_has_size(H, 0).
+
+% heap_not_empty
+
+heap_not_empty(H) :- not(heap_empty(H)).
+
+%heap_insert
+
+heap_insert(H, K, V) :-
+   heap(H, S),
+   pos is S + 1,
+   assert(heap_entry(H, pos, K, V)).
 
 heap_n(_, []).
 heap_n(G, [N | Ns]) :-
@@ -162,7 +190,6 @@ heap_n(G, [N | Ns]) :-
     heap_insert(p, W, U),
     heap_n(G, Ns).
 
-%mst_get
 
 %mst_get(G, Source, PreorderTree).
 
@@ -170,41 +197,17 @@ heap_n(G, [N | Ns]) :-
 %%%%MiniHeap%%%
 %%%%%%%%%%%%%%%
 
-%new_heap
-
-new_heap(H) :- heap(H, _S), !.
-new_heap(H) :- assert(heap(H, 0)), !.
-
-%delete_heap
-
-delete_heap(H) :- retractall(heap_entry(H, _, _, _)),
-    retract(heap(H, _)).
-
-%heap_has_size
-
-heap_has_size(H, S) :- heap(H, S).
-
-%heap_empty
-
-heap_empty(H) :- heap_has_size(H, 0).
-
-%heap_not_empty
-
-heap_not_empty(H) :- not(heap_empty(H)).
-
 %heap_head
 
 heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
 
-%heap_insert
-
-heap_insert(H, K, V) :-
-    heap(H, S),
-    retract(heap(H, _)),
-    Sum is S + 1, new_heap(H),
-    assert(heap(H, Sum)),
-    assert(heap_entry(H,  Sum, K, V)),
-    assert(node(H, K, V)), heapify(H, Sum).
+% heap_insert(H, K, V) :-
+   % heap(H, S),
+   % retract(heap(H, _)),
+   % Sum is S + 1, new_heap(H),
+   % assert(heap(H, Sum)),
+   % assert(heap_entry(H,  Sum, K, V)),
+   % assert(node(H, K, V)), heapify(H, Sum).
 
 %heapify
 
