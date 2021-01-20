@@ -14,6 +14,7 @@
 :- dynamic vertex_key/3.
 :- dynamic vertex_previous/3.
 :- dynamic node/3.
+:- dynamic row/3.
 
 % new_graph
 
@@ -97,24 +98,27 @@ save_graph(G, [B | Bs]) :-
     new_arc(G, V, U, W),
     save_graph(G, Bs), !.
 
-% write_graph
+list_rows():- listing(row(_, _, _)).
 
+% write_graph
+%
 write_graph(G, FileName) :- write_graph(G, FileName, graph).
 write_graph(G, FileName, Type):-
-    Type = graph, findall(row(U, V, W), arc(G, U, V, W), Rows),
-    csv_write_file(FileName, Rows, [option(separator(0'\t))]), !. % file location?
+    Type = graph,
+    findall(row(U, V, W), arc(G, U, V, W), Rows),
+    csv_write_file(FileName, Rows, [separator(0'\t)]), !. % file location?
 write_graph(G, FileName, Type):-
     Type = edges,
-    trans_list(G),
-    findall(row(U, V, W), row(U, V, W), Rows),
+    create_rows(G),
+    findall(row(U, V, W), row(arc(_, U, V, W)), Rows),
     csv_write_file(FileName, Rows, [separator(0'\t)]),
-                                    retractall(row(_, _, _)).
+    retractall(row(_, _, _)).
 
-trans_list([]).
-trans_list([[B1, B2, B3] | Bs]) :-
-    Term =..[row, B1, B2, B3],
+create_rows([]).
+create_rows([B | Bs]) :-
+    Term =.. [row, B],
     assert(Term),
-    trans_list(Bs).
+    create_rows(Bs).
 
 %%%%%%%%%%%%%%%
 %%%%%%MST%%%%%%
