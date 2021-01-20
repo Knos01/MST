@@ -110,13 +110,16 @@ write_graph(G, FileName, Type):-
 write_graph(G, FileName, Type):-
     Type = edges,
     create_rows(G),
-    findall(row(U, V, W), row(arc(_, U, V, W)), Rows),
+    findall(row(U, V, W), row(U, V, W), Rows),
     csv_write_file(FileName, Rows, [separator(0'\t)]),
     retractall(row(_, _, _)).
 
 create_rows([]).
 create_rows([B | Bs]) :-
-    Term =.. [row, B],
+    arg(2, B, U),
+    arg(3, B, V),
+    arg(4, B, W),
+    Term =.. [row, U, V, W],
     assert(Term),
     create_rows(Bs).
 
