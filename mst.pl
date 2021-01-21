@@ -178,8 +178,9 @@ heap_not_empty(H) :- not(heap_empty(H)).
 % heap_head
 
 % heap_insert/3
+% se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
 
-heap_insert(H, K, V) :-
+heap_insert(H, K, V) :- % controllare se V è dentro H
    heap(H, S),
    NewSize is S + 1,
    retract(heap(H, S)),
@@ -195,7 +196,7 @@ heapify(H, S, I) :-          % passo induttivo
    heap_entry(H, I, K1, V1),
    heap_entry(H, PosParent, K2, V2),
    K1 =< K2,
-   assert(heap_entry(H, PosParent, K1, V1)),
+   assert(heap_entry(H, PosParent, K1, V1)),  % swap
    assert(heap_entry(H, I, K2, V2)),
    retract(heap_entry(H, I, K1, V1)),
    retract(heap_entry(H, PosParent, K2, V2)),
@@ -205,7 +206,7 @@ heapify(H, S, I) :-
    PosParent is floor((I - 1) / 2),
    heap_entry(H, I, K1, _V1),
    heap_entry(H, PosParent, K2, _V2),
-   K1 >= K2, !.
+   K1 > K2, !.
 
 
 %%% vertex_previous(G, V, U) in cui U è parent
