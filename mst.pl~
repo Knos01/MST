@@ -184,7 +184,6 @@ heap_insert(H, K, V) :-
    heap(H, S),
    NewSize is S + 1,
    retract(heap(H, S)),
-   new_heap(H),
    assert(heap(H, NewSize)),
    assert(heap_entry(H, S, K, V)), !.
 

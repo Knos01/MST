@@ -98,15 +98,14 @@ save_graph(G, [B | Bs]) :-
     new_arc(G, V, U, W),
     save_graph(G, Bs), !.
 
-list_rows():- listing(row(_, _, _)).
 
 % write_graph
-%
+
 write_graph(G, FileName) :- write_graph(G, FileName, graph).
 write_graph(G, FileName, Type):-
     Type = graph,
     findall(row(U, V, W), arc(G, U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]), !. % file location?
+    csv_write_file(FileName, Rows, [separator(0'\t)]), !.
 write_graph(G, FileName, Type):-
     Type = edges,
     create_rows(G),
@@ -115,13 +114,13 @@ write_graph(G, FileName, Type):-
     retractall(row(_, _, _)).
 
 create_rows([]).
-create_rows([B | Bs]) :-
-    arg(2, B, U),
-    arg(3, B, V),
-    arg(4, B, W),
+create_rows([A | As]) :-
+    arg(2, A, U),
+    arg(3, A, V),
+    arg(4, A, W),
     Term =.. [row, U, V, W],
     assert(Term),
-    create_rows(Bs).
+    create_rows(As).
 
 %%%%%%%%%%%%%%%
 %%%%%%MST%%%%%%
@@ -185,7 +184,7 @@ heap_insert(H, K, V) :-
    NewSize is S + 1,
    retract(heap(H, S)),
    assert(heap(H, NewSize)),
-   assert(heap_entry(H, S, K, V)), !.
+   assert(heap_entry(H, S, K, V)), heapify(H, NewSize).
 
 heap_n(_, []).
 heap_n(G, [N | Ns]) :-
