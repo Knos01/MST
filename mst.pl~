@@ -176,12 +176,17 @@ heap_empty(H) :- heap_has_size(H, 0).
 
 heap_not_empty(H) :- not(heap_empty(H)).
 
+% head_head
+
 %heap_insert
 
 heap_insert(H, K, V) :-
-   heap(H, _S),
-   pos is heap_has_size + 1,
-   assert(heap_entry(H, pos, K, V)).
+   heap(H, S),
+   NewSize is S + 1,
+   retract(heap(H, S)),
+   new_heap(H),
+   assert(heap(H, NewSize)),
+   assert(heap_entry(H, S, K, V)), !.
 
 heap_n(_, []).
 heap_n(G, [N | Ns]) :-
