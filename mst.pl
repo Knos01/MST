@@ -175,16 +175,42 @@ heap_empty(H) :- heap_has_size(H, 0).
 
 heap_not_empty(H) :- not(heap_empty(H)).
 
-% head_head
+% heap_head
 
-%heap_insert
+% heap_insert/3
 
 heap_insert(H, K, V) :-
    heap(H, S),
    NewSize is S + 1,
    retract(heap(H, S)),
    assert(heap(H, NewSize)),
-   assert(heap_entry(H, S, K, V)), heapify(H, NewSize).
+   assert(heap_entry(H, S, K, V)), heapify(H, NewSize, S).
+
+% heapify/3
+
+heapify(_H, _S, I) :- I = 0. % caso base
+heapify(H, S, I) :-          % passo induttivo
+   heap(H, S),
+   PosParent is floor((I - 1) / 2),
+   heap_entry(H, I, K1, V1),
+   heap_entry(H, PosParent, K2, V2),
+   K1 =< K2,
+   assert(heap_entry(H, PosParent, K1, V1)),
+   assert(heap_entry(H, I, K2, V2)),
+   retract(heap_entry(H, I, K1, V1)),
+   retract(heap_entry(H, PosParent, K2, V2)),
+   heapify(H, S, PosParent), !.
+heapify(H, S, I) :-
+   heap(H, S),
+   PosParent is floor((I - 1) / 2),
+   heap_entry(H, I, K1, _V1),
+   heap_entry(H, PosParent, K2, _V2),
+   K1 >= K2, !.
+
+
+%%% vertex_previous(G, V, U) in cui U è parent
+
+
 
 heap_n(_, []).
 heap_n(G, [N | Ns]) :-
@@ -203,14 +229,6 @@ heap_n(G, [N | Ns]) :-
 %heap_head
 
 heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
-
-% heap_insert(H, K, V) :-
-   % heap(H, S),
-   % retract(heap(H, _)),
-   % Sum is S + 1, new_heap(H),
-   % assert(heap(H, Sum)),
-   % assert(heap_entry(H,  Sum, K, V)),
-   % assert(node(H, K, V)), heapify(H, Sum).
 
 %heapify
 
@@ -253,4 +271,6 @@ add3(H, K, V) :-
 
 %list_heap
 
-list_heap(H) :- listing(heap_entry(H, _, _, _)).
+list_heap(H) :-
+   heap(H, _),
+   listing(heap_entry(H, _, _, _)).
