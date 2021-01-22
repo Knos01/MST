@@ -178,8 +178,9 @@ heap_not_empty(H) :- not(heap_empty(H)).
 % heap_head
 
 % heap_insert/3
+% se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
 
-heap_insert(H, K, V) :-
+heap_insert(H, K, V) :- % controllare se V è dentro H
    heap(H, S),
    NewSize is S + 1,
    retract(heap(H, S)),

@@ -1,139 +1,139 @@
 %%%% -*- Mode: Prolog -*-
 
 :- dynamic graph/1.
-:- dynamic graph/2.
-:- dynamic vertex/1.
 :- dynamic vertex/2.
-:- dynamic arc/3.
 :- dynamic arc/4.
 :- dynamic heap/2.
-:- dynamic heap/1.
 :- dynamic heap_entry/4.
 :- dynamic visited/2.
 :- dynamic previous/3.
 :- dynamic vertex_key/3.
 :- dynamic vertex_previous/3.
-:- dynamic node/3.
 :- dynamic row/3.
 
-% new_graph
+% new_graph/1
 
 new_graph(G) :- graph(G), !.
 new_graph(G) :- assert(graph(G)), !.
 
-% delete_graph
+% delete_graph/1
 
 delete_graph(G) :-
    retractall(arc(G, _, _, _)),
    retractall(vertex(G, _)),
    retract(graph(G)).
 
-% new_vertex
+% new_vertex/2
 
 new_vertex(G, V) :- vertex(G, V), !.
 new_vertex(G, V) :- assert(vertex(G, V)), !.
 
-% graph_vertices
+% graph_vertices/2
 
 graph_vertices(G, Vs) :- findall(V, vertex(G, V), Vs).
 
-% list_vertices
+% list_vertices/1
 
 list_vertices(G) :-
-    graph(G),
-    listing(vertex(G, _)).
+   graph(G),
+   listing(vertex(G, _)).
 
-% new_arc
+% new_arc/4
 
 new_arc(G, U, V, Weight) :- arc(G, U, V, Weight), !.
 new_arc(G, U, V, Weight) :-
    assert(arc(G, U, V, Weight)),
-   assert(arc(G, V, U, Weight)),
-   !.
+   assert(arc(G, V, U, Weight)), !.
 new_arc(G, U, V) :- new_arc(G, U, V, 1).
 
-% graph_arcs
+% graph_arcs/2
 
 graph_arcs(G, Es) :- findall(arc(G, U, V, W), arc(G, U, V, W), Es).
 
-% vertex_neighbors
+% vertex_neighbors/3
 
 vertex_neighbors(G, V, Ns) :-
-    vertex(G, V),
-    findall(arc(G, V, N, W), arc(G, V, N, W), Ns).
+   vertex(G, V),
+   findall(arc(G, V, N, W), arc(G, V, N, W), Ns).
 
-% adjs
+% adjs/3
 
 adjs(G, V, Vs) :-
-    vertex(G, V),
-    findall(vertex(G, N), arc(G, V, N, _), Vs).
+   vertex(G, V),
+   findall(vertex(G, N), arc(G, V, N, _), Vs).
 
-% list_arcs
+% list_arcs/1
 
 list_arcs(G) :-
-    graph(G),
-    listing(arc(G, _, _, _)).
+   graph(G),
+   listing(arc(G, _, _, _)).
 
-% list_graph
+% list_graph/1
 
 list_graph(G) :-
-    graph(G),
-    list_vertices(G),
-    list_arcs(G), !.
+   graph(G),
+   list_vertices(G),
+   list_arcs(G), !.
 
-% read_graph
+% read_graph/2
 
 read_graph(G, FileName) :-
-    new_graph(G),
-    csv_read_file(FileName, Rows, [separator(0'\t)]),
-                                  save_graph(G, Rows).
+   new_graph(G),
+   csv_read_file(FileName, Rows, [separator(0'\t)]),
+   save_graph(G, Rows).
+
+% save_graph/2
+
 save_graph(_, []) :- !.
 save_graph(G, [B | Bs]) :-
-    functor(B, row, 3),
-    arg(1, B, V),
-    arg(2, B, U),
-    arg(3, B, W),
-    new_vertex(G, V),
-    new_vertex(G, U),
-    new_arc(G, V, U, W),
-    save_graph(G, Bs), !.
+   functor(B, row, 3),
+   arg(1, B, V),
+   arg(2, B, U),
+   arg(3, B, W),
+   new_vertex(G, V),
+   new_vertex(G, U),
+   new_arc(G, V, U, W),
+   save_graph(G, Bs), !.
 
 
-% write_graph
+% write_graph/2
 
 write_graph(G, FileName) :- write_graph(G, FileName, graph).
+
+% write_graph/3
+
 write_graph(G, FileName, Type):-
-    Type = graph,
-    findall(row(U, V, W), arc(G, U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]), !.
+   Type = graph,
+   findall(row(U, V, W), arc(G, U, V, W), Rows),
+   csv_write_file(FileName, Rows, [separator(0'\t)]), !.
 write_graph(G, FileName, Type):-
-    Type = edges,
-    create_rows(G),
-    findall(row(U, V, W), row(U, V, W), Rows),
-    csv_write_file(FileName, Rows, [separator(0'\t)]),
-    retractall(row(_, _, _)).
+   Type = edges,
+   create_rows(G),
+   findall(row(U, V, W), row(U, V, W), Rows),
+   csv_write_file(FileName, Rows, [separator(0'\t)]),
+   retractall(row(_, _, _)).
+
+% create_rows/1
 
 create_rows([]).
 create_rows([A | As]) :-
-    arg(2, A, U),
-    arg(3, A, V),
-    arg(4, A, W),
-    Term =.. [row, U, V, W],
-    assert(Term),
-    create_rows(As).
+   arg(2, A, U),
+   arg(3, A, V),
+   arg(4, A, W),
+   Term =.. [row, U, V, W],
+   assert(Term),
+   create_rows(As).
 
-%%%%%%%%%%%%%%%
-%%%%%%MST%%%%%%
-%%%%%%%%%%%%%%%
+% MST
 
-% set_inf
+% set_inf/2
 
 set_inf(_, []).
 set_inf(G, [V | Vs]):-
-    assert(vertex_key(G, V, inf)),
-    set_inf(G, Vs).
+   assert(vertex_key(G, V, inf)),
+   set_inf(G, Vs).
 
-%mst_prim
+%mst_prim/2
 
 mst_prim(G, Source) :-
    graph_vertices(G, V),
@@ -145,13 +145,6 @@ mst_prim(G, Source) :-
    vertex_neighbors(G, Source, N),
    heap_n(G, N).
 
-%suorce
-%neighbours
-%metto i neighbours nell'heap
-%tolgo la testa (heap extract)
-%vertex_key
-%vertex_previous
-
 % new_heap/1
 
 new_heap(H) :- heap(H, _S), !.
@@ -160,22 +153,20 @@ new_heap(H) :- assert(heap(H, 0)), !.
 % delete_heap/1
 
 delete_heap(H) :-
-    retractall(heap_entry(H, _, _, _)),
-    retract(heap(H, _)).
+   retractall(heap_entry(H, _, _, _)),
+   retract(heap(H, _)).
 
-% heap_has_size
+% heap_has_size/2
 
 heap_has_size(H, S) :- heap(H, S).
 
-% heap_empty
+% heap_empty/1
 
 heap_empty(H) :- heap_has_size(H, 0).
 
-% heap_not_empty
+% heap_not_empty/1
 
 heap_not_empty(H) :- not(heap_empty(H)).
-
-% heap_head
 
 % heap_insert/3
 % se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
@@ -208,47 +199,30 @@ heapify(H, S, I) :-
    heap_entry(H, PosParent, K2, _V2),
    K1 > K2, !.
 
-
 %%% vertex_previous(G, V, U) in cui U è parent
 
+% MiniHeap
 
-
-heap_n(_, []).
-heap_n(G, [N | Ns]) :-
-    nth(4, N, W),
-    nth(3, N, U),
-    heap_insert(p, W, U),
-    heap_n(G, Ns).
-
-
-%mst_get(G, Source, PreorderTree).
-
-%%%%%%%%%%%%%%%
-%%%%MiniHeap%%%
-%%%%%%%%%%%%%%%
-
-%heap_head
+%heap_head/3
 
 heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
 
-%heapify
-
-
-
-%heap_extract
+%heap_extract/3
 
 heap_extract(H, K, V) :-
-    retract(node(H, K, V)),
-    delete_heap(H),
-    new_heap(H),
-    findall(K1, node(H, K1, V1), Lk),
-    findall(V1, node(H, K1, V1), Lv),
-    add2(H, Lk, Lv).
+   retract(node(H, K, V)),
+   delete_heap(H),
+   new_heap(H),
+   findall(K1, node(H, K1, V1), Lk),
+   findall(V1, node(H, K1, V1), Lv),
+   add2(H, Lk, Lv).
 
 add2(_H, [], []) :- !.
-add2(H, [K|Ks], [V|Vs]) :- heap_insert(H, K, V), add2(H, Ks, Vs).
+add2(H, [K|Ks], [V|Vs]) :-
+   heap_insert(H, K, V),
+   add2(H, Ks, Vs).
 
-%modify key
+%modify key/4
 
 modify_key(H, NewKey, OldKey, V) :-
     heap_entry(H, _, OldKey, V),
