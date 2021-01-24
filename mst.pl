@@ -180,7 +180,7 @@ heap_insert(H, K, V) :- % controllare se V è dentro H
 
 % heapify/3
 
-heapify(_H, _S, I) :- I = 0. % caso base
+heapify(_H, _S, I) :- I = 0, !. % caso base, l'heap contiene un solo elemento
 heapify(H, S, I) :-          % passo induttivo
    heap(H, S),
    PosParent is floor((I - 1) / 2),
@@ -201,48 +201,33 @@ heapify(H, S, I) :-
 
 %%% vertex_previous(G, V, U) in cui U è parent
 
-% MiniHeap
+% heap_extract/3 - il predicato è vero quando la coppia K,V con K minima
+% è rimossa dallo heap H. Da false se l'heap è vuoto.
+
+heap_extract(H, K, V) :- % caso base, l'heap contiene un solo elemento
+   heap(H, S),
+   S is 1,
+   retract(heap_entry(H, 0, K, V)),
+   retract(heap(H, S)),
+   assert(heap(H, 0)), !.
+heap_extract(H, K, V) :- % passo induttivo
+   heap(H, S),
+   LastPos is S - 1,
+   heap_entry(H, 0, K, V),
+   heap_entry(H, LastPos, K1, V1),
+   assert(heap_entry(H, 0, K1, V1)),
+   retract(heap_entry(H, 0, K, V)),
+   retract(heap_entry(H, LastPos, K1, V1)),
+   retract(heap(H, S)),
+   assert(heap(H, LastPos)), fix_heap(H, LastPos, 0).
+
+% fix_heap/3
+
+fix_heap(_H, S, _I) :- S = 1. % caso base, l'heap contiene un solo elemento
 
 %heap_head/3
 
 heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
-
-%heap_extract/3
-
-heap_extract(H, K, V) :-
-   retract(node(H, K, V)),
-   delete_heap(H),
-   new_heap(H),
-   findall(K1, node(H, K1, V1), Lk),
-   findall(V1, node(H, K1, V1), Lv),
-   add2(H, Lk, Lv).
-
-add2(_H, [], []) :- !.
-add2(H, [K|Ks], [V|Vs]) :-
-   heap_insert(H, K, V),
-   add2(H, Ks, Vs).
-
-%modify key/4
-
-modify_key(H, NewKey, OldKey, V) :-
-    heap_entry(H, _, OldKey, V),
-    retract(node(H, OldKey, V)),
-    assert(node(H, NewKey, V )),
-    delete_heap(H), new_heap(H),
-    findall(K1, node(H, K1, V1), Lk),
-    findall(V1, node(H, K1, V1), Lv),
-    add(H, Lk, Lv), !.
-
-
-add(_H, [], []) :- !.
-add(H, [K|Ks], [V|Vs]) :-
-    add(H, K, V),
-    add3(H, Ks, Vs).
-add3(H, K, V) :-
-    heap(H, S),
-    retract(heap(H, _)),
-    Sum is S + 1, new_heap(H),
-    assert(heap_entry(H,  Sum, K, V)), heapify(H, Sum).
 
 %list_heap
 
