@@ -176,7 +176,8 @@ heap_insert(H, K, V) :- % controllare se V è dentro H
    NewSize is S + 1,
    retract(heap(H, S)),
    assert(heap(H, NewSize)),
-   assert(heap_entry(H, S, K, V)), heapify(H, NewSize, S).
+   assert(heap_entry(H, S, K, V)),
+   heapify(H, NewSize, S).
 
 % heapify/3
 
@@ -219,11 +220,56 @@ heap_extract(H, K, V) :- % passo induttivo
    retract(heap_entry(H, 0, K, V)),
    retract(heap_entry(H, LastPos, K1, V1)),
    retract(heap(H, S)),
-   assert(heap(H, LastPos)), fix_heap(H, LastPos, 0).
+   assert(heap(H, LastPos)),
+   fix_heap(H, LastPos, 0).
 
 % fix_heap/3
 
 fix_heap(_H, S, _I) :- S = 1. % caso base, l'heap contiene un solo elemento
+fix_heap(H, S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   Right < S,
+   heap_entry(H, Left, KL, _VL),
+   heap_entry(H, Min, KM, VM),
+   heap_entry(H, Right, KR, VR),
+   L = [KL, KM, KR],
+   min_list(L, Smallest),
+   Smallest = KR,
+   assert(heap_entry(H, Min, KR, VR)),  % swap
+   assert(heap_entry(H, Right, KM, VM)),
+   retract(heap_entry(H, Right, KR, VR)),
+   retract(heap_entry(H, Min, KM, VM)),
+   fix_heap(H, S, Right), !.
+fix_heap(H, S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   Left < S,
+   heap_entry(H, Left, KL, VL),
+   heap_entry(H, Min, KM, VM),
+   heap_entry(H, Right, KR, _VR),
+   L = [KL, KM, KR],
+   min_list(L, Smallest),
+   Smallest = KL,
+   assert(heap_entry(H, Min, KL, VL)),  % swap
+   assert(heap_entry(H, Left, KM, VM)),
+   retract(heap_entry(H, Left, KL, VL)),
+   retract(heap_entry(H, Min, KM, VM)),
+   fix_heap(H, S, Left), !.
+fix_heap(H, _S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   heap_entry(H, Left, KL, _VL),
+   heap_entry(H, Min, KM, _VM),
+   heap_entry(H, Right, KR, _VR),
+   L = [KL, KM, KR],
+   min_list(L, Smallest),
+   Smallest = KM, !.
+
+
 
 %heap_head/3
 
@@ -234,3 +280,6 @@ heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
 list_heap(H) :-
    heap(H, _),
    listing(heap_entry(H, _, _, _)).
+
+
+%%%% end of file -- mst.pl
