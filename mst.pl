@@ -150,6 +150,10 @@ mst_prim(G, Source) :-
 new_heap(H) :- heap(H, _S), !.
 new_heap(H) :- assert(heap(H, 0)), !.
 
+% heap_head/3
+
+heap_head(H, K, V) :- heap_entry(H, 0, K, V).
+
 % delete_heap/1
 
 delete_heap(H) :-
@@ -205,12 +209,6 @@ heapify(H, S, I) :-
 % heap_extract/3 - il predicato è vero quando la coppia K,V con K minima
 % è rimossa dallo heap H. Da false se l'heap è vuoto.
 
-heap_extract(H, K, V) :- % caso base, l'heap contiene un solo elemento
-   heap(H, S),
-   S is 1,
-   retract(heap_entry(H, 0, K, V)),
-   retract(heap(H, S)),
-   assert(heap(H, 0)), !.
 heap_extract(H, K, V) :- % passo induttivo
    heap(H, S),
    LastPos is S - 1,
@@ -221,11 +219,13 @@ heap_extract(H, K, V) :- % passo induttivo
    retract(heap_entry(H, LastPos, K1, V1)),
    retract(heap(H, S)),
    assert(heap(H, LastPos)),
-   fix_heap(H, LastPos, 0).
+   fix_heap(H, LastPos, 0), !.
 
 % fix_heap/3
 
-fix_heap(_H, S, _I) :- S = 1. % caso base, l'heap contiene un solo elemento
+fix_heap(_H, S, I) :-
+   Left is 2 * I + 1,
+   Left >= S, !.
 fix_heap(H, S, I) :-
    Min is I,
    Left is 2 * I + 1,
@@ -266,12 +266,6 @@ fix_heap(H, _S, I) :-
    L = [KL, KM, KR],
    min_list(L, Smallest),
    Smallest = KM, !.
-
-
-
-%heap_head/3
-
-heap_head(H, K, V) :-  heap_entry(H, 1, K, V).
 
 %list_heap
 
