@@ -1,0 +1,16 @@
+:- dynamic heap/2.
+:- dynamic heap_entry/4.
+
+assert(heap(myHeap, 11)).
+assert(heap_entry(myHeap, 0, 3, 3)).
+assert(heap_entry(myHeap, 1, 18, 18)).
+assert(heap_entry(myHeap, 2, 5, 5)).
+assert(heap_entry(myHeap, 3, 24, 24)).
+assert(heap_entry(myHeap, 4, 19, 19)).
+assert(heap_entry(myHeap, 5, 14, 14)).
+assert(heap_entry(myHeap, 6, 15, 15)).
+assert(heap_entry(myHeap, 7, 25, 25)).
+assert(heap_entry(myHeap, 8, 32, 32)).
+assert(heap_entry(myHeap, 9, 20, 20)).
+assert(heap_entry(myHeap, 10, 22, 22)).
+

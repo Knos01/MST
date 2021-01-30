@@ -234,8 +234,7 @@ fix_heap(H, S, I) :-
    heap_entry(H, Left, KL, _VL),
    heap_entry(H, Min, KM, VM),
    heap_entry(H, Right, KR, VR),
-   L = [KL, KM, KR],
-   min_list(L, Smallest),
+   min_list([KL, KM, KR], Smallest),
    Smallest = KR,
    assert(heap_entry(H, Min, KR, VR)),  % swap
    assert(heap_entry(H, Right, KM, VM)),
@@ -250,8 +249,7 @@ fix_heap(H, S, I) :-
    heap_entry(H, Left, KL, VL),
    heap_entry(H, Min, KM, VM),
    heap_entry(H, Right, KR, _VR),
-   L = [KL, KM, KR],
-   min_list(L, Smallest),
+   min_list([KL, KR, KM], Smallest),
    Smallest = KL,
    assert(heap_entry(H, Min, KL, VL)),  % swap
    assert(heap_entry(H, Left, KM, VM)),

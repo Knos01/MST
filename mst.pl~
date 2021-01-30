@@ -241,7 +241,7 @@ fix_heap(H, S, I) :-
    assert(heap_entry(H, Right, KM, VM)),
    retract(heap_entry(H, Right, KR, VR)),
    retract(heap_entry(H, Min, KM, VM)),
-   fix_heap(H, S, Min), !.
+   fix_heap(H, S, Right), !.
 fix_heap(H, S, I) :-
    Min is I,
    Left is 2 * I + 1,
@@ -257,7 +257,7 @@ fix_heap(H, S, I) :-
    assert(heap_entry(H, Left, KM, VM)),
    retract(heap_entry(H, Left, KL, VL)),
    retract(heap_entry(H, Min, KM, VM)),
-   fix_heap(H, S, Min), !.
+   fix_heap(H, S, Left), !.
 fix_heap(H, _S, I) :-
    Min is I,
    Left is 2 * I + 1,
