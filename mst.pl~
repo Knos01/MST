@@ -209,12 +209,6 @@ heapify(H, S, I) :-
 % heap_extract/3 - il predicato è vero quando la coppia K,V con K minima
 % è rimossa dallo heap H. Da false se l'heap è vuoto.
 
-/* heap_extract(H, K, V) :- % caso base, l'heap contiene un solo elemento
-   heap(H, S),
-   S is 1,
-   retract(heap_entry(H, 0, K, V)),
-   retract(heap(H, S)),
-   assert(heap(H, 0)), !. */
 heap_extract(H, K, V) :- % passo induttivo
    heap(H, S),
    LastPos is S - 1,

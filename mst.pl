@@ -140,10 +140,21 @@ mst_prim(G, Source) :-
    set_inf(G, V),
    retract(vertex_key(G, Source, inf)),
    assert(vertex_key(G, Source, 0)),
-   new_heap(p),
-   heap_insert(Source),
-   vertex_neighbors(G, Source, N),
-   heap_n(G, N).
+   new_heap(myHeap),
+   heap(H, 0),
+   % inserire heap_insert(H, Source)
+   vertex_neighbors(G, Source, Ns),
+   heap_insert_from_list(G, H, Ns).
+
+%heap_insert_from_list
+
+heap_insert_from_list(_, _, []).
+heap_insert_from_list(G, H, [N | Ns]) :-
+   arg(3, N, K),
+   arg(4, N, V),
+   heap_insert(H, K, V),
+   heap_insert_from_list(G, H, Ns).
+
 
 % new_heap/1
 
