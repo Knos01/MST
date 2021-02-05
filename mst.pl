@@ -136,22 +136,28 @@ set_inf(G, [V | Vs]):-
 %mst_prim/2
 
 mst_prim(G, Source) :-
-   graph_vertices(G, V),
-   set_inf(G, V),
+   graph_vertices(G, Vs),
+   set_inf(G, Vs),
    retract(vertex_key(G, Source, inf)),
    assert(vertex_key(G, Source, 0)),
    new_heap(myHeap),
    heap(H, 0),
-   % inserire heap_insert(H, Source)
+   % heap_insert(H, 0, Source), %inserisco la source
    vertex_neighbors(G, Source, Ns),
-   heap_insert_from_list(G, H, Ns).
+   heap_insert_from_list(G, H, Ns),
+   heap_extract(H, K, V), %recupero B
+   assert(vertex_key(G, V, K)),
+   retract(vertex_key(G, V, inf)),
+   assert(vertex_previous(G, Source, V)),
+   mst_prim(G, V).
 
-%heap_insert_from_list
+
+% heap_insert_from_list
 
 heap_insert_from_list(_, _, []).
 heap_insert_from_list(G, H, [N | Ns]) :-
-   arg(3, N, K),
-   arg(4, N, V),
+   arg(3, N, V),
+   arg(4, N, K),
    heap_insert(H, K, V),
    heap_insert_from_list(G, H, Ns).
 
@@ -186,6 +192,10 @@ heap_not_empty(H) :- not(heap_empty(H)).
 % heap_insert/3
 % se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
 
+heap_insert(H, K, V) :- % controllare se V è dentro H
+   heap(H, _S),
+   heap_entry(H, _, KOld, V),
+   KOld =< K, !.
 heap_insert(H, K, V) :- % controllare se V è dentro H
    heap(H, S),
    NewSize is S + 1,
