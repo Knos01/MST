@@ -142,18 +142,45 @@ mst_prim(G, Source) :-
    assert(vertex_key(G, Source, 0)),
    new_heap(myHeap),
    heap(H, 0),
-   heap_insert(H, 0, Source), %inserisco la source
    vertex_neighbors(G, Source, Ns),
-   heap_insert_from_list(G, H, Ns).
+   heap_insert_from_list(G, H, Ns),
+   recursive_mst_prim(G, Source).
+
+recursive_mst_prim(_G, _Node) :-
+   heap(_H, 0), !.
+recursive_mst_prim(G, Node) :-
+   heap(H, _S),
+   heap_extract(H, K, V), %recupero B
+   assert(vertex_key(G, V, K)),
+   retract(vertex_key(G, V, inf)),
+   assert(vertex_previous(G, Node, V)),
+   vertex_neighbors(G, V, Ns),
+   heap_insert_from_list(G, H, Ns),
+   recursive_mst_prim(G, V), !.
+
 
 % heap_insert_from_list
 
 heap_insert_from_list(_, _, []).
-heap_insert_from_list(G, H, [N | Ns]) :-
+heap_insert_from_list(G, H, [N | Ns]) :-  % non esiste un vertex key per V
    arg(3, N, V),
    arg(4, N, K),
+   not(vertex_key(G, V, _K1)),
    heap_insert(H, K, V),
-   heap_insert_from_list(G, H, Ns).
+   heap_insert_from_list(G, H, Ns), !.
+heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ed è infinito
+   arg(3, N, V),
+   arg(4, N, K),
+   vertex_key(G, V, K1),
+   K1 = inf,
+   heap_insert(H, K, V),
+   heap_insert_from_list(G, H, Ns), !.
+heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ma non inf
+   arg(3, N, V),
+   arg(4, N, _K),
+   vertex_key(G, V, _),
+   heap_insert_from_list(G, H, Ns), !.
+
 
 
 % new_heap/1
@@ -190,7 +217,14 @@ heap_insert(H, K, V) :- % controllare se V è dentro H
    heap(H, _S),
    heap_entry(H, _, KOld, V),
    KOld =< K, !.
-heap_insert(H, K, V) :- % controllare se V è dentro H
+heap_insert(H, K, V) :- % controllare se V è dentro H e nel caso aggiornarlo
+   heap(H, S),
+   heap_entry(H, _, KOld, V),
+   KOld > K,
+   retract(heap_entry(H, Pos, KOld, V)),
+   assert(heap_entry(H, Pos, K, V)),
+   heapify(H, S, Pos),!.
+heap_insert(H, K, V) :- % V non è dentro H
    heap(H, S),
    NewSize is S + 1,
    retract(heap(H, S)),
@@ -204,20 +238,39 @@ heapify(_H, _S, I) :- I = 0, !. % caso base, l'heap contiene un solo elemento
 heapify(H, S, I) :-          % passo induttivo
    heap(H, S),
    PosParent is floor((I - 1) / 2),
-   heap_entry(H, I, K1, V1),
-   heap_entry(H, PosParent, K2, V2),
-   K1 =< K2,
-   assert(heap_entry(H, PosParent, K1, V1)),  % swap
-   assert(heap_entry(H, I, K2, V2)),
-   retract(heap_entry(H, I, K1, V1)),
-   retract(heap_entry(H, PosParent, K2, V2)),
+   heap_entry(H, I, K, V),
+   heap_entry(H, PosParent, KP, VP),
+   K < KP,
+   assert(heap_entry(H, PosParent, K, V)),  % swap
+   assert(heap_entry(H, I, KP, VP)),
+   retract(heap_entry(H, I, K, V)),
+   retract(heap_entry(H, PosParent, KP, VP)),
    heapify(H, S, PosParent), !.
 heapify(H, S, I) :-
    heap(H, S),
    PosParent is floor((I - 1) / 2),
-   heap_entry(H, I, K1, _V1),
-   heap_entry(H, PosParent, K2, _V2),
-   K1 > K2, !.
+   heap_entry(H, I, K, V),
+   heap_entry(H, PosParent, KP, VP),
+   K = KP,
+   V @< VP,
+   assert(heap_entry(H, PosParent, K, V)),  % swap
+   assert(heap_entry(H, I, KP, VP)),
+   retract(heap_entry(H, I, K, V)),
+   retract(heap_entry(H, PosParent, KP, VP)), !.
+heapify(H, S, I) :-
+   heap(H, S),
+   PosParent is floor((I - 1) / 2),
+   heap_entry(H, I, K, V),
+   heap_entry(H, PosParent, KP, VP),
+   K = KP,
+   V @> VP, !.
+heapify(H, S, I) :-
+   heap(H, S),
+   PosParent is floor((I - 1) / 2),
+   heap_entry(H, I, K, _V),
+   heap_entry(H, PosParent, KP, _VP),
+   K > KP, !.
+
 
 %%% vertex_previous(G, V, U) in cui U è parent
 
@@ -236,7 +289,8 @@ heap_extract(H, K, V) :- % passo induttivo
    assert(heap(H, LastPos)),
    fix_heap(H, LastPos, 0), !.
 
-% fix_heap/3
+% fix_heap/3 TO DO: controllare che i nomi dei vertici siano ordinato a
+% parità di valore della chiave.
 
 fix_heap(_H, S, I) :-
    Left is 2 * I + 1,
@@ -271,6 +325,40 @@ fix_heap(H, S, I) :-
    retract(heap_entry(H, Left, KL, VL)),
    retract(heap_entry(H, Min, KM, VM)),
    fix_heap(H, S, Left), !.
+fix_heap(H, S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   Right = S,
+   heap_entry(H, Left, KL, VL),
+   heap_entry(H, Min, KM, VM),
+   KL < KM,
+   assert(heap_entry(H, Min, KL, VL)),  % swap
+   assert(heap_entry(H, Left, KM, VM)),
+   retract(heap_entry(H, Left, KL, VL)),
+   retract(heap_entry(H, Min, KM, VM)), !.
+fix_heap(H, S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   Right = S,
+   heap_entry(H, Left, KL, VL),
+   heap_entry(H, Min, KM, VM),
+   KM =< KL,
+   VL @< VM,
+   assert(heap_entry(H, Min, KL, VL)),  % swap
+   assert(heap_entry(H, Left, KM, VM)),
+   retract(heap_entry(H, Left, KL, VL)),
+   retract(heap_entry(H, Min, KM, VM)), !.
+fix_heap(H, S, I) :-
+   Min is I,
+   Left is 2 * I + 1,
+   Right is 2 * I + 2,
+   Right = S,
+   heap_entry(H, Left, KL, VL),
+   heap_entry(H, Min, KM, VM),
+   KM =< KL,
+   VL @> VM, !.
 fix_heap(H, _S, I) :-
    Min is I,
    Left is 2 * I + 1,
