@@ -10,6 +10,7 @@
 :- dynamic vertex_key/3.
 :- dynamic vertex_previous/3.
 :- dynamic row/3.
+:- dynamic mst_arc/4.
 
 % new_graph/1
 
@@ -172,18 +173,60 @@ find_min_arc(G, [Lv | Lvs], V):-
 
 % mst_get/3
 
-mst_get(G, Source, _) :-
-   graph(G),
-   findall([Source, V], vertex_previous(G, Source, V), Vertexes),
-   Vertexes = [], !.
 mst_get(G, Source, PreorderTree) :-
    graph(G),
-   findall([Source, V], vertex_previous(G, Source, V), Vertexes),
-   recursive_mst_get,
-   ChildPos is 0,
-   nth0(ChildPos, Vertexes, Vertex),
-   append([arc(G, Source, Vertex, _K)], PreorderTree),
-   mst_get(G, Vertex, PreorderTree).
+   findall(V, vertex_previous(G, Source, V), Vertexes),
+   visit_mst(G, Source, Vertexes),
+   findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
+   append(Arcs, [], PreorderTree).
+
+% visit/4 - caso con lista ricorsivamente creata
+/*
+visit_mst(_, _, [], _) :- !.
+visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
+   graph(G),
+   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
+   findall(C, vertex_previous(G, Vertex, C), Children),
+
+   Children = [],
+   visit_mst(G, Parent, Vertexes, NewPreorderTree),
+   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
+visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
+   graph(G),
+   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
+   findall(C, vertex_previous(G, Vertex, C), Children),
+   Children \= [],
+   visit_mst(G, Vertex, Children, NewPreorderTree),
+   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
+*/
+
+% visit/3 - caso con assert di mst_arc
+
+visit_mst(_, _, []) :- !.
+visit_mst(G, Parent, [Vertex | Vertexes]) :-
+   graph(G),
+   arc(G, Parent, Vertex, K),
+   not(mst_arc(G, Parent, Vertex, _)),
+   assert(mst_arc(G, Parent, Vertex, K)),
+   findall(C, vertex_previous(G, Vertex, C), Children),
+   Children = [],
+   visit_mst(G, Parent, Vertexes),
+   visit_mst(G, Parent, Vertexes), !.
+visit_mst(G, Parent, [Vertex | Vertexes]) :-
+   graph(G),
+   arc(G, Parent, Vertex, _K),
+   findall(C, vertex_previous(G, Vertex, C), Children),
+   Children = [],
+   visit_mst(G, Parent, Vertexes),
+   visit_mst(G, Parent, Vertexes), !.
+visit_mst(G, Parent, [Vertex | Vertexes]) :-
+   graph(G),
+   arc(G, Parent, Vertex, _K),
+   findall(C, vertex_previous(G, Vertex, C), Children),
+   Children \= [],
+   visit_mst(G, Vertex, Children),
+   visit_mst(G, Parent, Vertexes), !.
+
 
 
 % heap_insert_from_list/3
@@ -404,6 +447,8 @@ reset() :-
    retractall(heap(_, _)),
    retractall(heap_entry(_, _, _, _)),
    retractall(vertex_key(_, _, _)),
-   retractall(vertex_previous(_, _, _)).
+   retractall(vertex_previous(_, _, _)),
+   retractall(mst_arc(_, _, _, _)).
+
 
 %%%% end of file -- mst.pl
