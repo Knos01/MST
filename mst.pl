@@ -136,6 +136,8 @@ set_inf(G, [V | Vs]):-
 %mst_prim/2
 
 mst_prim(G, Source) :-
+   graph(G),
+   reset(),
    graph_vertices(G, Vs),
    set_inf(G, Vs),
    retract(vertex_key(G, Source, inf)),
@@ -144,30 +146,49 @@ mst_prim(G, Source) :-
    heap(H, 0),
    vertex_neighbors(G, Source, Ns),
    heap_insert_from_list(G, H, Ns),
-   recursive_mst_prim(G, Source).
+   recursive_mst_prim(G).
 
-recursive_mst_prim(_G, _Node) :-
+recursive_mst_prim(_G) :-
    heap(_H, 0), !.
-recursive_mst_prim(G, Node) :-
+recursive_mst_prim(G) :-
    heap(H, _S),
    heap_extract(H, K, V), %recupero B
-   assert(vertex_key(G, V, K)),
    retract(vertex_key(G, V, inf)),
-   assert(vertex_previous(G, Node, V)),
+   assert(vertex_key(G, V, K)),
+   findall(arc(G, V, N, K), arc(G, V, N, K), Lvs),
+   find_min_arc(G, Lvs, V),
    vertex_neighbors(G, V, Ns),
    heap_insert_from_list(G, H, Ns),
-   recursive_mst_prim(G, V), !.
+   recursive_mst_prim(G), !.
+
+find_min_arc(G, [Lv | _Lvs], V):-
+   arg(3, Lv, Neighbor),
+   vertex_key(G, Neighbor, _),
+   assert(vertex_previous(G, Neighbor, V)), !.
+find_min_arc(G, [Lv | Lvs], V):-
+   arg(3, Lv, Neighbor),
+   not(vertex_key(G, Neighbor, _)),
+   find_min_arc(G, Lvs, V).
+
+% mst_get/3
+
+mst_get(G, Source, _) :-
+   graph(G),
+   findall([Source, V], vertex_previous(G, Source, V), Vertexes),
+   Vertexes = [], !.
+mst_get(G, Source, PreorderTree) :-
+   graph(G),
+   findall([Source, V], vertex_previous(G, Source, V), Vertexes),
+   recursive_mst_get,
+   ChildPos is 0,
+   nth0(ChildPos, Vertexes, Vertex),
+   append([arc(G, Source, Vertex, _K)], PreorderTree),
+   mst_get(G, Vertex, PreorderTree).
 
 
-% heap_insert_from_list
+% heap_insert_from_list/3
 
 heap_insert_from_list(_, _, []).
-heap_insert_from_list(G, H, [N | Ns]) :-  % non esiste un vertex key per V
-   arg(3, N, V),
-   arg(4, N, K),
-   not(vertex_key(G, V, _K1)),
-   heap_insert(H, K, V),
-   heap_insert_from_list(G, H, Ns), !.
 heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ed è infinito
    arg(3, N, V),
    arg(4, N, K),
@@ -177,17 +198,9 @@ heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ed è infini
    heap_insert_from_list(G, H, Ns), !.
 heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ma non inf
    arg(3, N, V),
-   arg(4, N, K),
+   arg(4, N, _K),
    vertex_key(G, V, K1),
-   K1 =< K,
-   heap_insert_from_list(G, H, Ns), !.
-heap_insert_from_list(G, H, [N | Ns]) :- %da valutare TO DO
-   arg(3, N, V),
-   arg(4, N, K),
-   vertex_key(G, V, K1),
-   K1 > K,
-   retract(vertex_key(G, V, K1)),
-   assert(vertex_key(G, V, K)),
+   K1 \= inf,
    heap_insert_from_list(G, H, Ns), !.
 
 
@@ -299,8 +312,7 @@ heap_extract(H, K, V) :- % passo induttivo
    assert(heap(H, LastPos)),
    fix_heap(H, LastPos, 0), !.
 
-% fix_heap/3 TO DO: controllare che i nomi dei vertici siano ordinato a
-% parità di valore della chiave.
+% fix_heap/3
 
 fix_heap(_H, S, I) :-
    Left is 2 * I + 1,
@@ -386,5 +398,12 @@ list_heap(H) :-
    heap(H, _),
    listing(heap_entry(H, _, _, _)).
 
+% reset/0
+
+reset() :-
+   retractall(heap(_, _)),
+   retractall(heap_entry(_, _, _, _)),
+   retractall(vertex_key(_, _, _)),
+   retractall(vertex_previous(_, _, _)).
 
 %%%% end of file -- mst.pl
