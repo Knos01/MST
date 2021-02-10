@@ -179,26 +179,6 @@ mst_get(G, Source, PreorderTree) :-
    findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
    append(Arcs, [], PreorderTree).
 
-% visit/4 - caso con lista ricorsivamente creata
-/*
-visit_mst(_, _, [], _) :- !.
-visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
-   graph(G),
-   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
-   findall(C, vertex_previous(G, Vertex, C), Children),
-
-   Children = [],
-   visit_mst(G, Parent, Vertexes, NewPreorderTree),
-   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
-visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
-   graph(G),
-   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
-   findall(C, vertex_previous(G, Vertex, C), Children),
-   Children \= [],
-   visit_mst(G, Vertex, Children, NewPreorderTree),
-   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
-*/
-
 % visit/3 - caso con assert di mst_arc
 
 visit_mst(_, _, []) :- !.
@@ -209,14 +189,12 @@ visit_mst(G, Parent, [Vertex | Vertexes]) :-
    assert(mst_arc(G, Parent, Vertex, K)),
    findall(C, vertex_previous(G, Vertex, C), Children), %trovo figli di vertex
    Children = [],
-   visit_mst(G, Parent, Vertexes),
    visit_mst(G, Parent, Vertexes), !.
 visit_mst(G, Parent, [Vertex | Vertexes]) :-
    graph(G),
    arc(G, Parent, Vertex, _K),
    findall(C, vertex_previous(G, Vertex, C), Children),
    Children = [],
-   visit_mst(G, Parent, Vertexes),
    visit_mst(G, Parent, Vertexes), !.
 visit_mst(G, Parent, [Vertex | Vertexes]) :-
    graph(G),
