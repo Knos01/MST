@@ -137,7 +137,6 @@ set_inf(G, [V | Vs]):-
 %mst_prim/2
 
 mst_prim(G, Source) :-
-   graph(G),
    reset(),
    graph_vertices(G, Vs),
    set_inf(G, Vs),
@@ -147,7 +146,7 @@ mst_prim(G, Source) :-
    heap(H, 0),
    vertex_neighbors(G, Source, Ns),
    heap_insert_from_list(G, H, Ns),
-   recursive_mst_prim(G).
+   recursive_mst_prim(G), !.
 
 recursive_mst_prim(_G) :-
    heap(_H, 0), !.
@@ -175,8 +174,8 @@ find_min_arc(G, [Lv | Lvs], V):-
 
 mst_get(G, Source, PreorderTree) :-
    graph(G),
-   findall(V, vertex_previous(G, Source, V), Vertexes),
-   visit_mst(G, Source, Vertexes),
+   findall(V, vertex_previous(G, Source, V), Vertexes), %trovo figli di source
+   visit_mst(G, Source, Vertexes), %visito i figli
    findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
    append(Arcs, [], PreorderTree).
 
@@ -208,7 +207,7 @@ visit_mst(G, Parent, [Vertex | Vertexes]) :-
    arc(G, Parent, Vertex, K),
    not(mst_arc(G, Parent, Vertex, _)),
    assert(mst_arc(G, Parent, Vertex, K)),
-   findall(C, vertex_previous(G, Vertex, C), Children),
+   findall(C, vertex_previous(G, Vertex, C), Children), %trovo figli di vertex
    Children = [],
    visit_mst(G, Parent, Vertexes),
    visit_mst(G, Parent, Vertexes), !.
@@ -226,7 +225,6 @@ visit_mst(G, Parent, [Vertex | Vertexes]) :-
    Children \= [],
    visit_mst(G, Vertex, Children),
    visit_mst(G, Parent, Vertexes), !.
-
 
 
 % heap_insert_from_list/3
