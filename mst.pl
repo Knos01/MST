@@ -42,7 +42,8 @@ list_vertices(G) :-
    graph(G),
    listing(vertex(G, _)).
 
-% new_arc/4
+% new_arc/4 attenzione posso mettere più archi da u a v con pesi
+% diversi?
 
 new_arc(G, U, V, Weight) :- arc(G, U, V, Weight), !.
 new_arc(G, U, V, Weight) :-
