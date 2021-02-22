@@ -161,3 +161,54 @@ Il predicato richiama listing/1 per stampare sulla console Prolog lo stato inter
 % reset
 
 Questo predicato cancella tutti gli heap, heap_entry, vertex_key, vertex_previous e mst_arc. 
+
+
+% Legenda variabili
+
+A - row
+Arcs - archi
+As - rows
+B - colonna nel file csv
+Bs - colonne nel file csv
+C - figlio
+Children - figli
+Es - lista di archi
+FileName - nome del file
+G - grafo
+H - heap
+I - ??? indice
+K1 - ??? chiave prima di essere cambiata
+K - chiave
+KL - chiave del nodo sinistro
+KM - chiave del nodo minimo
+KOld - chiave precedente
+KP - chiave del nodo genitore
+KR - chiave del nodo destro
+Left - ??? nodo sinistro
+Lvs - lista dei valori
+Min - ??? nodo minimo
+N - vertice vicino
+Neighbor - nodo vicino
+NewSize - nuova dimensione dell'heap
+Ns - lista dei vertici vicini
+Parent - vertice genitore
+Pos - posizione
+PosParent - posizione del nodo genitore
+PreorderTree - albero visitato in preordine
+Right - ??? nodo destro
+S - dimensione dell'heap
+Smallest - il più piccolo tra KL, KM e KR
+Source - nodo da cui parte l'mst prim
+Type - fipo di grafo orientato o meno
+U - vertice di partenza in un arco
+V - valore, vertice, vertice di arrivo in un arco
+Vertex - vertice
+Vertexes - vertici
+VL - valore del nodo sinistro
+VM - valore del nodo minimo
+VP - valore del nodo genitore
+VR - valore del nodo destro
+Vs - vertici
+W - peso
+Weight - peso
+
