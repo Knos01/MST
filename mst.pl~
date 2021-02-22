@@ -175,27 +175,9 @@ find_min_arc(G, [Lv | Lvs], V):-
 mst_get(G, Source, PreorderTree) :-
    graph(G),
    findall(V, vertex_previous(G, Source, V), Vertexes), %trovo figli di source
-   visit_mst(G, Source, Vertexes, PreorderTree). %visito i figli
-   %findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
-   %append(Arcs, [], PreorderTree).
-
-% visit/4 - caso con lista ricorsivamente creata
-
-visit_mst(_, _, [], _) :- !.
-visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
-   graph(G),
-   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
-   findall(C, vertex_previous(G, Vertex, C), Children),
-   Children = [],
-   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
-visit_mst(G, Parent, [Vertex | Vertexes], PreorderTree) :-
-   graph(G),
-   append(PreorderTree, [arc(G, Parent, Vertex, _K)], NewPreorderTree),
-   findall(C, vertex_previous(G, Vertex, C), Children),
-   Children \= [],
-   visit_mst(G, Vertex, Children, NewPreorderTree),
-   visit_mst(G, Parent, Vertexes, NewPreorderTree), !.
-
+   visit_mst(G, Source, Vertexes), %visito i figli
+   findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
+   append(Arcs, [], PreorderTree).
 
 % visit/3 - caso con assert di mst_arc
 

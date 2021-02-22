@@ -1,4 +1,7 @@
-%%%% -*- Mode: Prolog -*-
+% Kobril Christian 856448, Cicalla Eleonora 851649
+
+
+% %% -*- Mode: Prolog -*-
 
 :- dynamic graph/1.
 :- dynamic vertex/2.
