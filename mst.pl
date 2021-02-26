@@ -212,7 +212,7 @@ visit_mst(G, Parent, [Vertex | Vertexes]) :-
 % heap_insert_from_list/3
 
 heap_insert_from_list(_, _, []).
-heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ed è infinito
+heap_insert_from_list(G, H, [N | Ns]) :-
    arg(3, N, V),
    arg(4, N, K),
    vertex_key(G, V, K1),
