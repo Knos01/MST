@@ -212,7 +212,7 @@ visit_mst(G, Parent, [Vertex | Vertexes]) :-
 % heap_insert_from_list/3
 
 heap_insert_from_list(_, _, []).
-heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ed è infinito
+heap_insert_from_list(G, H, [N | Ns]) :-
    arg(3, N, V),
    arg(4, N, K),
    vertex_key(G, V, K1),
@@ -330,7 +330,7 @@ heapify(H, S, I) :-
 % heap_extract/3 - il predicato è vero quando la coppia K,V con K minima
 % è rimossa dallo heap H. Da false se l'heap è vuoto.
 
-heap_extract(H, K, V) :- % passo induttivo
+heap_extract(H, K, V) :-
    heap(H, S),
    LastPos is S - 1,
    heap_entry(H, 0, K, V),

@@ -42,8 +42,7 @@ list_vertices(G) :-
    graph(G),
    listing(vertex(G, _)).
 
-% new_arc/4 attenzione posso mettere più archi da u a v con pesi
-% diversi?
+% new_arc/4
 
 new_arc(G, U, V, Weight) :- arc(G, U, V, Weight), !.
 new_arc(G, U, V, Weight) :-
@@ -183,7 +182,7 @@ mst_get(G, Source, PreorderTree) :-
    findall(arc(G, V, N, W), mst_arc(G, V, N, W), Arcs),
    append(Arcs, [], PreorderTree).
 
-% visit/3 - caso con assert di mst_arc
+% visit/3
 
 visit_mst(_, _, []) :- !.
 visit_mst(G, Parent, [Vertex | Vertexes]) :-
@@ -219,7 +218,7 @@ heap_insert_from_list(G, H, [N | Ns]) :-
    K1 = inf,
    heap_insert(H, K, V),
    heap_insert_from_list(G, H, Ns), !.
-heap_insert_from_list(G, H, [N | Ns]) :- %esiste un vertex key per V ma non inf
+heap_insert_from_list(G, H, [N | Ns]) :- %esiste un v-key per V ma non inf
    arg(3, N, V),
    arg(4, N, _K),
    vertex_key(G, V, K1),
@@ -268,11 +267,11 @@ modify_key(H, NewKey, OldKey, V) :-
 % heap_insert/3
 % se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
 
-heap_insert(H, K, V) :- % controllare se V è dentro H
+heap_insert(H, K, V) :- % controllo se V è dentro H
    heap(H, _S),
    heap_entry(H, _, KOld, V),
    KOld =< K, !.
-heap_insert(H, K, V) :- % controllare se V è dentro H e nel caso aggiornarlo
+heap_insert(H, K, V) :- % controllo se V è dentro H e nel caso aggiornarlo
    heap(H, _S),
    heap_entry(H, _Pos, KOld, V),
    KOld > K,
