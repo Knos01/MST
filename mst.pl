@@ -330,7 +330,7 @@ heapify(H, S, I) :-
 % heap_extract/3 - il predicato è vero quando la coppia K,V con K minima
 % è rimossa dallo heap H. Da false se l'heap è vuoto.
 
-heap_extract(H, K, V) :- % passo induttivo
+heap_extract(H, K, V) :-
    heap(H, S),
    LastPos is S - 1,
    heap_entry(H, 0, K, V),

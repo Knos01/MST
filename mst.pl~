@@ -260,8 +260,10 @@ heap_not_empty(H) :- not(heap_empty(H)).
 % modify_key/4
 
 modify_key(H, NewKey, OldKey, V) :-
-   retract(heap_entry(H, _, OldKey, V)),
-   assert(heap_entry(H, _, NewKey, V)).
+   heap(H, S),
+   retract(heap_entry(H, Pos, OldKey, V)),
+   assert(heap_entry(H, Pos, NewKey, V)),
+   heapify(H, S, Pos), !.
 
 % heap_insert/3
 % se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
@@ -271,11 +273,10 @@ heap_insert(H, K, V) :- % controllare se V è dentro H
    heap_entry(H, _, KOld, V),
    KOld =< K, !.
 heap_insert(H, K, V) :- % controllare se V è dentro H e nel caso aggiornarlo
-   heap(H, S),
-   heap_entry(H, Pos, KOld, V),
+   heap(H, _S),
+   heap_entry(H, _Pos, KOld, V),
    KOld > K,
-   modify_key(H, K, KOld, V),
-   heapify(H, S, Pos),!.
+   modify_key(H, K, KOld, V), !.
 heap_insert(H, K, V) :- % V non è dentro H
    heap(H, S),
    NewSize is S + 1,
