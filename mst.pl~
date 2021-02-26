@@ -242,7 +242,8 @@ heap_head(H, K, V) :- heap_entry(H, 0, K, V).
 
 delete_heap(H) :-
    retractall(heap_entry(H, _, _, _)),
-   retract(heap(H, _)).
+   retract(heap(H, _)), !.
+delete_heap(_).
 
 % heap_has_size/2
 
@@ -256,6 +257,12 @@ heap_empty(H) :- heap_has_size(H, 0).
 
 heap_not_empty(H) :- not(heap_empty(H)).
 
+% modify_key/4
+
+modify_key(H, NewKey, OldKey, V) :-
+   retract(heap_entry(H, _, OldKey, V)),
+   assert(heap_entry(H, _, NewKey, V)).
+
 % heap_insert/3
 % se K nuova è più piccola lo metto e faccio heapify, altrimenti nulla.
 
@@ -265,10 +272,9 @@ heap_insert(H, K, V) :- % controllare se V è dentro H
    KOld =< K, !.
 heap_insert(H, K, V) :- % controllare se V è dentro H e nel caso aggiornarlo
    heap(H, S),
-   heap_entry(H, _, KOld, V),
+   heap_entry(H, Pos, KOld, V),
    KOld > K,
-   retract(heap_entry(H, Pos, KOld, V)),
-   assert(heap_entry(H, Pos, K, V)),
+   modify_key(H, K, KOld, V),
    heapify(H, S, Pos),!.
 heap_insert(H, K, V) :- % V non è dentro H
    heap(H, S),
