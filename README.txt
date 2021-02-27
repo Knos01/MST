@@ -65,6 +65,7 @@ Questo è un predicato usato in read_graph per salvare il grafo letto nella memo
 % write_graph
 
 % create_rows
+
 Questo è un predicato usato in write_graph che a partire da un grafo crea le tre colonne nelle quali andranno rispettivamente nodo di partenza, nodo di arrivo e peso dell'arco.
 
 
@@ -76,10 +77,9 @@ Questo è un predicato usato nel predicato mst_prim che imposta tutte le chiavi 
 
 Questo predicato genera un mst prim. 
 
-
 % recursive_mst_prim
 
-Questo è un predicato usato alla fine del predicato mst_prim per invocare ricorsivamente le funzioni principali del predicato mst_prim senza dover ripetere le istruzioni che devono essere svolte solo una volta (set_inf, graph_vertices eccetera).
+Questo è un predicato usato nel predicato mst_prim per gestire la parte ricorsiva dell'algoritmo.
 
 
 % find_min_arc
@@ -94,12 +94,12 @@ Questo predicato è vero quando PreorderTree è una lista degli archi del MST or
 
 % visit_mst
 
-Questo è un predicato usato nella mst_get che si occupa di visitare l'mst dato un nodo Parent trovando e visitando i figli.
+Questo è un predicato usato nella mst_get che si occupa di visitare l'mst dato un nodo Parent trovando e visitando i figli in pre-order.
 
 
 % heap_insert_from_list
 
-Questo predicato è usato nella recursive_mst_prim e fa un inserimento nell'heap se esiste un vertex_key per V ed è in infinito.
+Questo predicato è usato nella recursive_mst_prim e fa un inserimento nell'heap se esiste un vertex_key per V ed è infinito.
 
 
 % new_heap
@@ -139,8 +139,7 @@ Il predicato insert/3 è vero quando l’elemento V è inserito nello heap H con
 % heapify
 
 Questo predicato ha il compito di assicurare il
-rispetto della proprietà fondamentale degli Heap. Cioè, che il
-valore di ogni nodo non sia inferiore di quello dei propri figli
+rispetto della proprietà fondamentale degli Heap, partendo dall'ultima foglia.
 
 
 % heap_extract
@@ -150,7 +149,7 @@ Il predicato extract/3 è vero quando la coppia K, V con K minima, è rimossa da
 
 % fix_heap
 
-Questa è un heapifiy partendo dalla root
+Questa è un heapifiy partendo dalla radice.
 
 
 % list_heap
@@ -161,54 +160,4 @@ Il predicato richiama listing/1 per stampare sulla console Prolog lo stato inter
 % reset
 
 Questo predicato cancella tutti gli heap, heap_entry, vertex_key, vertex_previous e mst_arc. 
-
-
-% Legenda variabili
-
-A - row
-Arcs - archi
-As - rows
-B - colonna nel file csv
-Bs - colonne nel file csv
-C - figlio
-Children - figli
-Es - lista di archi
-FileName - nome del file
-G - grafo
-H - heap
-I - ??? indice
-K1 - ??? chiave prima di essere cambiata
-K - chiave
-KL - chiave del nodo sinistro
-KM - chiave del nodo minimo
-KOld - chiave precedente
-KP - chiave del nodo genitore
-KR - chiave del nodo destro
-Left - ??? nodo sinistro
-Lvs - lista dei valori
-Min - ??? nodo minimo
-N - vertice vicino
-Neighbor - nodo vicino
-NewSize - nuova dimensione dell'heap
-Ns - lista dei vertici vicini
-Parent - vertice genitore
-Pos - posizione
-PosParent - posizione del nodo genitore
-PreorderTree - albero visitato in preordine
-Right - ??? nodo destro
-S - dimensione dell'heap
-Smallest - il più piccolo tra KL, KM e KR
-Source - nodo da cui parte l'mst prim
-Type - fipo di grafo orientato o meno
-U - vertice di partenza in un arco
-V - valore, vertice, vertice di arrivo in un arco
-Vertex - vertice
-Vertexes - vertici
-VL - valore del nodo sinistro
-VM - valore del nodo minimo
-VP - valore del nodo genitore
-VR - valore del nodo destro
-Vs - vertici
-W - peso
-Weight - peso
 
